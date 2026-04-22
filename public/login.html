@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveX | Login</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Back to home nav -->
+    <nav class="navbar scrolled">
+        <div class="container nav-container" style="justify-content: center;">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-car-side"></i> Drive<span>X</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="auth-page">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Welcome Back</h2>
+                <p class="text-muted">Enter your credentials to access your account</p>
+            </div>
+            
+            <div id="login-alert" class="alert"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" required placeholder="john@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block btn-lg mt-4" id="login-btn">
+                    Log In <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                </button>
+            </form>
+
+            <div class="form-footer">
+                Don't have an account? <a href="register.html">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const alertBox = document.getElementById('login-alert');
+            const btn = document.getElementById('login-btn');
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alertBox.textContent = 'Login successful! Redirecting...';
+                    alertBox.className = 'alert success';
+                    alertBox.style.display = 'block';
+                    
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    setTimeout(() => {
+                        window.location.href = data.user.role === 'admin' ? 'admin.html' : 'index.html';
+                    }, 1000);
+                } else {
+                    alertBox.textContent = data.message || 'Login failed';
+                    alertBox.className = 'alert error';
+                    alertBox.style.display = 'block';
+                }
+            } catch (err) {
+                alertBox.textContent = 'Network error. Make sure server is running.';
+                alertBox.className = 'alert error';
+                alertBox.style.display = 'block';
+            } finally {
+                btn.innerHTML = 'Log In <i class="fa-solid fa-arrow-right-to-bracket"></i>';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

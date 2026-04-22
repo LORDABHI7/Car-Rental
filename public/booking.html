@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveX | Secure Booking</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-car-side"></i> Drive<span>X</span>
+            </a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="cars.html">Cars</a></li>
+                <div id="auth-links" class="auth-group">
+                    <!-- Auth links injected via JS -->
+                </div>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="booking-page">
+        <div class="form-card booking-form-card">
+            
+            <a href="cars.html" class="btn btn-outline" style="margin-bottom: 2rem;"><i class="fa-solid fa-arrow-left"></i> Selection</a>
+
+            <div class="form-header">
+                <h2>Complete Your Booking</h2>
+                <p class="text-muted" id="selected-car-name">Loading selected vehicle...</p>
+            </div>
+            
+            <div id="booking-alert" class="alert"></div>
+
+            <form id="booking-form">
+                
+                <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Trip Details</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pickup_date">Pickup Date</label>
+                        <input type="date" id="pickup_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="return_date">Return Date</label>
+                        <input type="date" id="return_date" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pickup_location">Pickup/Drop-off Location</label>
+                    <select id="pickup_location" class="form-control" required>
+                        <option value="">Select a location</option>
+                        <option value="JFK Airport Terminal 4">Market Road,Karkala</option>
+                        <option value="Downtown Manhattan Central">MG Road , Udupi</option>
+                        <option value="Brooklyn Heights Branch">Surathkal , Mangalore</option>
+                    </select>
+                </div>
+
+                <!-- Price Summary -->
+                <div style="background: var(--bg-light); padding: 1.5rem; border-radius: var(--radius-md); margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">Order Summary</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--text-muted);">
+                        <span>Rate per day</span>
+                        <span id="rate-per-day">₹0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--text-muted);">
+                        <span>Number of days</span>
+                        <span id="total-days">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-weight: 700; font-size: 1.25rem;">
+                        <span>Total Estimated Cost</span>
+                        <span id="total-cost" style="color: var(--primary)">₹0</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg mt-4" id="book-btn">
+                    Confirm & Book Now <i class="fa-solid fa-check"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Require Auth
+            const user = checkAuth();
+            if (!user) {
+                alert('You must be logged in to make a booking.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const carId = urlParams.get('car_id');
+            let pricePerDay = 0;
+
+            if (!carId) {
+                document.getElementById('booking-alert').innerHTML = 'No car selected. Please go back and select a car.';
+                document.getElementById('booking-alert').className = 'alert error';
+                document.getElementById('book-btn').disabled = true;
+                return;
+            }
+
+            // Fetch Car Data
+            try {
+                const res = await fetch(`${API_URL}/cars/${carId}`);
+                if (!res.ok) throw new Error('Car not found');
+                const car = await res.json();
+                
+                document.getElementById('selected-car-name').textContent = `Vehicle: ${car.car_name}`;
+                pricePerDay = parseFloat(car.price_per_day);
+                document.getElementById('rate-per-day').textContent = `₹${pricePerDay}`;
+            } catch (err) {
+                document.getElementById('booking-alert').textContent = 'Error loading car details.';
+                document.getElementById('booking-alert').className = 'alert error';
+                return;
+            }
+
+            // Date validation and calculation logic
+            const pickupDateObj = document.getElementById('pickup_date');
+            const returnDateObj = document.getElementById('return_date');
+            const today = new Date().toISOString().split('T')[0];
+            pickupDateObj.min = today;
+
+            pickupDateObj.addEventListener('change', () => {
+                returnDateObj.min = pickupDateObj.value;
+                calculateTotal();
+            });
+
+            returnDateObj.addEventListener('change', calculateTotal);
+
+            function calculateTotal() {
+                const start = new Date(pickupDateObj.value);
+                const end = new Date(returnDateObj.value);
+                
+                if (start && end && start <= end) {
+                    const diffTime = Math.abs(end - start);
+                    // Add 1 to count the pickup day as a full day if dates are same
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+
+                    document.getElementById('total-days').textContent = diffDays;
+                    const totalCost = diffDays * pricePerDay;
+                    document.getElementById('total-cost').textContent = `₹${totalCost.toFixed(2)}`;
+                    return totalCost;
+                } else {
+                    document.getElementById('total-days').textContent = '0';
+                    document.getElementById('total-cost').textContent = '₹0';
+                    return 0;
+                }
+            }
+
+            // Submit Booking
+            document.getElementById('booking-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const pickup_date = pickupDateObj.value;
+                const return_date = returnDateObj.value;
+                const pickup_location = document.getElementById('pickup_location').value;
+                const total_price = calculateTotal();
+
+                if (total_price <= 0) {
+                    alert('Invalid dates selected');
+                    return;
+                }
+
+                const btn = document.getElementById('book-btn');
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch(`${API_URL}/bookings`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            // Add Auth Token if you've protected the backend
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            user_id: user.id,
+                            car_id: carId,
+                            pickup_date,
+                            return_date,
+                            total_price,
+                            pickup_location
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        const alertBox = document.getElementById('booking-alert');
+                        alertBox.textContent = 'Booking Confirmed! Thank you for choosing DriveX.';
+                        alertBox.className = 'alert success';
+                        
+                        // Disable form
+                        document.getElementById('booking-form').style.opacity = '0.5';
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 3000);
+                    } else {
+                        throw new Error(data.message || 'Booking failed');
+                    }
+                } catch (err) {
+                    const alertBox = document.getElementById('booking-alert');
+                    alertBox.textContent = err.message;
+                    alertBox.className = 'alert error';
+                    btn.innerHTML = 'Confirm & Book Now <i class="fa-solid fa-check"></i>';
+                    btn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

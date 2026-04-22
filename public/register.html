@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveX | Register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <nav class="navbar scrolled">
+        <div class="container nav-container" style="justify-content: center;">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-car-side"></i> Drive<span>X</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="auth-page">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Create Account</h2>
+                <p class="text-muted">Join DriveX to experience premium rentals</p>
+            </div>
+
+            <div id="register-alert" class="alert"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" class="form-control" required placeholder="John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" required placeholder="john@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" class="form-control" required placeholder="+91 xxxxxxxxx">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" required placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg mt-4" id="register-btn">
+                    Sign Up <i class="fa-solid fa-user-plus"></i>
+                </button>
+            </form>
+
+            <div class="form-footer">
+                Already have an account? <a href="login.html">Log In</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+
+            const alertBox = document.getElementById('register-alert');
+            const btn = document.getElementById('register-btn');
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alertBox.textContent = 'Registration successful! Redirecting to login...';
+                    alertBox.className = 'alert success';
+                    alertBox.style.display = 'block';
+
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    alertBox.textContent = data.message || 'Registration failed';
+                    alertBox.className = 'alert error';
+                    alertBox.style.display = 'block';
+                }
+            } catch (err) {
+                alertBox.textContent = 'Network error. Make sure server is running.';
+                alertBox.className = 'alert error';
+                alertBox.style.display = 'block';
+            } finally {
+                btn.innerHTML = 'Sign Up <i class="fa-solid fa-user-plus"></i>';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveX | Premium Car Rentals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-car-side"></i>
+                Drive<span>X</span>
+            </a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="cars.html">Cars</a></li>
+                <div id="auth-links" class="auth-group">
+                    <li><a href="login.html" class="btn btn-outline">Log In</a></li>
+                    <li><a href="register.html" class="btn btn-primary">Sign Up</a></li>
+                </div>
+            </ul>
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero" id="home">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <span class="badge">Premium Service</span>
+                <h1 class="hero-title">Discover Your <span>Perfect</span> Ride Today</h1>
+                <p class="hero-subtitle">
+                    Experience luxury, comfort, and performance with our exclusive collection of premium vehicles
+                    tailored for every journey.
+                </p>
+                <div class="hero-buttons">
+                    <a href="cars.html" class="btn btn-primary btn-lg">Explore Fleet</a>
+                    <a href="#featured" class="btn btn-outline btn-lg">View Featured</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1200"
+                    alt="Premium SUV" class="floating-car rounded-img">
+            </div>
+        </div>
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+        </div>
+    </header>
+
+    <!-- Featured Cars Section -->
+    <section id="featured" class="section bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2>Featured <span>Vehicles</span></h2>
+                <p>Select from our top-rated premium cars</p>
+            </div>
+
+            <div class="car-grid" id="featured-cars-container">
+                <!-- Cars will be injected here by JS. Initial skeleton loader -->
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="cars.html" class="btn btn-outline">View All Vehicles <i
+                        class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>Fully Insured</h3>
+                    <p>Drive with peace of mind knowing all our vehicles come with comprehensive insurance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
+                    <h3>24/7 Support</h3>
+                    <p>Our dedicated team is available round the clock to assist you with any roadside issues.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <h3>Anywhere Pickup</h3>
+                    <p>Choose from multiple convenient locations for pickup and drop-off across the city.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <a href="index.html" class="logo text-white">
+                    <i class="fa-solid fa-car-side"></i> Drive<span>X</span>
+                </a>
+                <p>Premium car rental service providing luxury and comfort for your journeys since 2026.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="cars.html">Vehicles</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Info</h3>
+                <ul>
+                    <li><i class="fa-solid fa-phone"></i> +919876543210</li>
+                    <li><i class="fa-solid fa-envelope"></i> support@drivex.com</li>
+                    <li><i class="fa-solid fa-location-dot"></i> NMAMIT , NITTE </li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 DriveX Rentals. All Rights Reserved. College Project.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/script.js"></script>
+    <script>
+        // Specific script for home page to fetch some featured cars
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchFeaturedCars();
+        });
+    </script>
+</body>
+
+</html>
